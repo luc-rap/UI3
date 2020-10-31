@@ -54,6 +54,7 @@ def skrizit(rodic1, rodic2):
     print(rodic2)
     potomok = []
     rodic1_potomok = []
+    rodic2_potomok = []
     prvy_bod_krizenia = int(random.random() * len(rodic1))
     print(prvy_bod_krizenia)
     druhy_bod_krizenia = int(random.random() * len(rodic1))
@@ -67,6 +68,17 @@ def skrizit(rodic1, rodic2):
     for i in range(start, end):
         rodic1_potomok.append((rodic1[i][0],rodic1[i][1]))
     print(rodic1_potomok)
+
+    for j in rodic2:
+        if j not in rodic1_potomok:
+            rodic2_potomok.append(j)
+    print(rodic2_potomok)
+
+    potomok = rodic2_potomok[:start] + rodic1_potomok + rodic2_potomok[start:]
+    print("SKRIZENE DIETA:")
+    print(potomok)
+
+
 
 
 
