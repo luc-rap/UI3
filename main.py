@@ -49,24 +49,37 @@ def roulette_wheel_selection(populacia):
     pravdepodobnost = []
     rodicia_populacie = []
     probabilities = []
+    d = {}
+    s = 0
     for i in populacia:
+        #print(i)
+        d[fitness_cesty(vzdialenost_cesty(i))] = i
         fitness_celkovo.append(fitness_cesty((vzdialenost_cesty(i))))
     suma_fitness = float(sum(fitness_celkovo))
 
+    dict = (sorted(d.items()))
+    print(dict)
+    r = random.uniform(0, suma_fitness)
+    for i in range(len(populacia)):
+        #print(fitness_cesty((vzdialenost_cesty(i))))
+        s += (dict[i][0])
+        if s > r:
+            return populacia[i]
+
     #print(suma_fitness)
-    for i in fitness_celkovo:
-        pravdepodobnost.append(i / suma_fitness)
-    rel_fitness = [f / suma_fitness for f in fitness_celkovo]
-    probabilities = [sum(rel_fitness[:i+1])
-                     for i in range(len(rel_fitness))]
-    chosen = []
-    for n in range(2):
-        r = random.random()
-        for (i, individual) in enumerate(populacia):
-            if r <= probabilities[i]:
-                chosen.append(list(individual))
-                break
-    return chosen
+    #for i in fitness_celkovo:
+    #    pravdepodobnost.append(i / suma_fitness)
+    #rel_fitness = [f / suma_fitness for f in fitness_celkovo]
+    #probabilities = [sum(rel_fitness[:i+1])
+    #                 for i in range(len(rel_fitness))]
+    #chosen = []
+    #for n in range(2):
+    #    r = random.random()
+     #   for (i, individual) in enumerate(populacia):
+        #    if r <= probabilities[i]:
+      #          chosen.append(list(individual))
+          #      break
+   # return chosen
 
 
     #for j in range(0, len(populacia)):
@@ -101,7 +114,7 @@ def skrizit(rodic1, rodic2):
 
     potomok = rodic2_potomok[:start] + rodic1_potomok + rodic2_potomok[start:]
     #print("SKRIZENE DIETA:")
-    print(potomok)
+    #print(potomok)
     return potomok
 
 
@@ -223,8 +236,8 @@ if __name__ == '__main__':
         #print('Fittest Route: {0} ({1})'.format(populacia[fittest], fitness[fittest]))
 
         for gen in range(0, len(populacia)):
-            parent1, parent2 = roulette_wheel_selection(populacia)
-            #parent2 = roulette_wheel_selection(populacia)
+            parent1 = roulette_wheel_selection(populacia)
+            parent2 = roulette_wheel_selection(populacia)
             #parent1 = tournament_selection(populacia)
             #parent2 = tournament_selection(populacia)
             #if random.random() < pravdepodobnost_krizenia:
