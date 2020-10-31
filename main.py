@@ -1,5 +1,6 @@
 import math
 import random
+import numpy
 
 
 # vzdialenost dvoch miest na zaklade euklidovskej vzdialenosti
@@ -26,6 +27,26 @@ def vzdialenost_cesty(cesta):
 def fitness_cesty(dlzka_cesty):
     fitness = 1 / float(dlzka_cesty)
     return fitness
+
+
+def roulette_wheel_selection(populacia):
+    fitness_celkovo = []
+    pravdepodobnost = []
+    rodicia_populacie = []
+    for i in populacia:
+        fitness_celkovo.append(fitness_cesty((vzdialenost_cesty(i))))
+    suma_fitness = sum(fitness_celkovo)
+    print(suma_fitness)
+    for i in fitness_celkovo:
+        pravdepodobnost.append(i / suma_fitness)
+    # choice na zaklade pravdepodobnosti vyberie nejaky sample, p - probability associated with each entry
+    for j in range(0, len(populacia)):
+        rodicia_populacie.append(populacia[numpy.random.choice(len(populacia), p=pravdepodobnost)])
+    print(rodicia_populacie)
+
+
+def tournament_selection():
+    pass
 
 
 # nahodne premiesana cesta je jedna populacia
@@ -55,16 +76,17 @@ if __name__ == '__main__':
         zoznam_miest.append((x, y))
 
     print(zoznam_miest)
-    pokus = vytvor_populaciu(zoznam_miest, 10)
-    print(pokus)
-    for i in pokus:
-        print(vzdialenost_cesty(i))
+    populacia = vytvor_populaciu(zoznam_miest, 10)
+    roulette_wheel_selection(populacia)
+    ##for i in populacia:
+       # print(fitness_cesty((vzdialenost_cesty(i))))
 
         # velkost populacie, generacie - aspon 20 -  pocet roznych shuffled ciest
         # 20 nahodnych jedincvo
         # jedinec == jedna mozna cesta == chromozom
         # jedno mesto - gen
         # fitnes skore - dlzka celej cesty
+        #  Je potrebné implementovať aspoň dve metódy výberu rodičov z populácie.
 
 
 
