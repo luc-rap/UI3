@@ -2,7 +2,8 @@ import math
 import random
 import numpy
 
-
+p_mutacie = 0.1
+pravdepodobnost_krizenia = 0.6
 # vzdialenost dvoch miest na zaklade euklidovskej vzdialenosti
 def vzdialenost(mesto_1, mesto_2):
     d = math.sqrt((mesto_1[0] - mesto_2[0])**2 + (mesto_1[1]-mesto_2[1])**2)
@@ -39,51 +40,42 @@ def roulette_wheel_selection(populacia):
     for i in populacia:
         fitness_celkovo.append(fitness_cesty((vzdialenost_cesty(i))))
     suma_fitness = sum(fitness_celkovo)
-    print(suma_fitness)
+    #print(suma_fitness)
     for i in fitness_celkovo:
         pravdepodobnost.append(i / suma_fitness)
     for j in range(0, len(populacia)):
         rodicia_populacie.append(populacia[numpy.random.choice(len(populacia), p=pravdepodobnost)])
-    print(rodicia_populacie)
+    #print(rodicia_populacie)
     return rodicia_populacie
 
 
 def skrizit(rodic1, rodic2):
-    print("RODICIA")
-    print(rodic1)
-    print(rodic2)
+    #print("RODICIA")
+    #print(rodic1)
+    #print(rodic2)
     potomok = []
     rodic1_potomok = []
     rodic2_potomok = []
     prvy_bod_krizenia = int(random.random() * len(rodic1))
-    print(prvy_bod_krizenia)
+    #print(prvy_bod_krizenia)
     druhy_bod_krizenia = int(random.random() * len(rodic1))
-    print(druhy_bod_krizenia)
+    #print(druhy_bod_krizenia)
 
     start = min(prvy_bod_krizenia, druhy_bod_krizenia)
     end = max(prvy_bod_krizenia, druhy_bod_krizenia)
 
-
-
     for i in range(start, end):
         rodic1_potomok.append((rodic1[i][0],rodic1[i][1]))
-    print(rodic1_potomok)
+    #print(rodic1_potomok)
 
     for j in rodic2:
         if j not in rodic1_potomok:
             rodic2_potomok.append(j)
-    print(rodic2_potomok)
+    #print(rodic2_potomok)
 
     potomok = rodic2_potomok[:start] + rodic1_potomok + rodic2_potomok[start:]
-    print("SKRIZENE DIETA:")
-    print(potomok)
-
-
-
-
-
-
-
+    #print("SKRIZENE DIETA:")
+    #print(potomok)
     return potomok
 
 
@@ -94,11 +86,29 @@ def skrizit(rodic1, rodic2):
 
 def krizenie(rodicia_populacie):
     deti = []
-    pravdepodobnost_krizenia = 0.6
+
     for i in range(0, len(rodicia_populacie)-1): # posledny sa s niekym krizi?
         if random.random() < pravdepodobnost_krizenia:
             dieta = skrizit(rodicia_populacie[i], rodicia_populacie[i+1])
             deti.append(dieta)
+    #print("DETI:")
+    #print(deti)
+    return deti
+
+
+def vymen_susedov(dieta, swap):
+    dieta[swap], dieta[swap+1] = dieta[swap+1], dieta[swap]
+    return dieta
+
+
+# vymena 2 susednych miest
+def mutacia(dieta):
+    print(dieta)
+    for i in range(len(dieta)):
+        if random.random() < p_mutacie:
+            swap_index = int(random.random() * len(dieta)) # index
+            dieta = vymen_susedov(dieta, swap_index)
+    return dieta
 
 
 def tournament_selection():
@@ -118,22 +128,47 @@ def vytvor_populaciu(zoznam_miest, velkost_populacie):
     return populacia
 
 # pocet generacii == pocet iteracii, kolkkokrat to bude bezat
-def geneticky_algoritmus(populacia, velkost_populacie, pocet_generacii):
-    pass
+def nova_generacia(populacia):
+    deti = krizenie(roulette_wheel_selection(populacia))
+    #print(deti)
+    mutacia_deti = []
+    for i in range(0, len(deti)):
+        mutacia_deti.append(mutacia(deti[i]))
+    #print("MUTACIA")
+    #print(mutacia_deti)
+    return mutacia_deti
 
 
 if __name__ == '__main__':
     pocet_miest = 5
     zoznam_miest = []
+    pocet_generacii = 50
 
     for i in range(0, pocet_miest):
         x = int(random.random() * 200)
         y = int(random.random() * 200)
         zoznam_miest.append((x, y))
 
-    print(zoznam_miest)
+    #print(zoznam_miest)
     populacia = vytvor_populaciu(zoznam_miest, 10)
-    krizenie(roulette_wheel_selection(populacia))
+    print("Povodna populacia: ")
+    print(populacia)
+
+    for i in range(0, pocet_generacii):
+        populacia = nova_generacia(populacia)
+
+    print("Posledna generacia: ")
+    print(populacia)
+
+
+
+    #deti = krizenie(roulette_wheel_selection(populacia))
+    #print(deti)
+    #mutacia_deti = []
+    #for i in range(0, len(deti)):
+    #    mutacia_deti.append(mutacia(deti[i]))
+    #print("MUTACIA")
+    #print(mutacia_deti)
     ##for i in populacia:
        # print(fitness_cesty((vzdialenost_cesty(i))))
 
