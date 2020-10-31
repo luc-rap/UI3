@@ -4,6 +4,8 @@ import numpy
 
 p_mutacie = 0.1
 pravdepodobnost_krizenia = 0.6
+
+
 # vzdialenost dvoch miest na zaklade euklidovskej vzdialenosti
 def vzdialenost(mesto_1, mesto_2):
     d = math.sqrt((mesto_1[0] - mesto_2[0])**2 + (mesto_1[1]-mesto_2[1])**2)
@@ -15,7 +17,6 @@ def vzdialenost_cesty(cesta):
     dlzka_cesty = 0
     for i in range(0, len(cesta)):
         mesto_1 = cesta[i] # z ktoreho mesta ideme
-        meato_2 = None
         if i == len(cesta) - 1: # posledne mesto sa vracia do prveho
             mesto_2 = cesta[0]
             dlzka_cesty += vzdialenost(mesto_1, mesto_2)
@@ -103,11 +104,11 @@ def vymen_susedov(dieta, swap):
 
 # vymena 2 susednych miest
 def mutacia(dieta):
-    print(dieta)
+    #print(dieta)
     for i in range(len(dieta)):
         if random.random() < p_mutacie:
             swap_index = int(random.random() * len(dieta)) # index
-            dieta = vymen_susedov(dieta, swap_index)
+            dieta = vymen_susedov(dieta, swap_index-1)
     return dieta
 
 
@@ -140,39 +141,40 @@ def nova_generacia(populacia):
 
 
 if __name__ == '__main__':
-    pocet_miest = 5
+    pocet_miest = 20
     zoznam_miest = []
-    pocet_generacii = 50
-
+    pocet_generacii = 5
+    fitness_celkovo = []
     for i in range(0, pocet_miest):
         x = int(random.random() * 200)
         y = int(random.random() * 200)
         zoznam_miest.append((x, y))
 
     #print(zoznam_miest)
-    populacia = vytvor_populaciu(zoznam_miest, 10)
+    populacia = vytvor_populaciu(zoznam_miest, 50)
     print("Povodna populacia: ")
     print(populacia)
+    for i in populacia:
+        fitness_celkovo.append(fitness_cesty((vzdialenost_cesty(i))))
+    suma_fitness = sum(fitness_celkovo)
+    print("Povodny fitness: ")
+    print(suma_fitness)
 
     for i in range(0, pocet_generacii):
         populacia = nova_generacia(populacia)
+        #print("Nova generacia...")
+        #print(populacia)
 
     print("Posledna generacia: ")
     print(populacia)
+    for i in populacia:
+        fitness_celkovo.append(fitness_cesty((vzdialenost_cesty(i))))
+    suma_fitness = sum(fitness_celkovo)
+    print("Posledny fitness: ")
+    print(suma_fitness)
 
 
-
-    #deti = krizenie(roulette_wheel_selection(populacia))
-    #print(deti)
-    #mutacia_deti = []
-    #for i in range(0, len(deti)):
-    #    mutacia_deti.append(mutacia(deti[i]))
-    #print("MUTACIA")
-    #print(mutacia_deti)
-    ##for i in populacia:
-       # print(fitness_cesty((vzdialenost_cesty(i))))
-
-        # velkost populacie, generacie - aspon 20 -  pocet roznych shuffled ciest
+        # velkost populacie - aspon 20 -  pocet roznych shuffled ciest
         # 20 nahodnych jedincvo
         # jedinec == jedna mozna cesta == chromozom
         # jedno mesto - gen
