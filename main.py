@@ -174,12 +174,14 @@ def mutacia(dieta):
     return dieta
 
 
-#def tournament_selection(populacia):
-  #  print(populacia[numpy.random.choice(len(populacia), size=10)])
-  #  tournament_contestants = populacia[numpy.random.choice(len(populacia), size=10)]
-  #  tournament_contestants_fitness = computeFitness(tournament_contestants)
-  #  return tournament_contestants[numpy.argmin(tournament_contestants_fitness)]
-
+def tournament_selection(populacia):
+    tournament_size = 5
+    turnaj = []
+    for i in range(0, tournament_size):
+        random_index = int(random.random() * len(populacia))
+        turnaj.append(populacia[random_index])
+    fittest, dlzka, index = vyber_naj(turnaj)
+    return fittest
 
 # nahodne premiesana cesta je jedna populacia
 def vytvor_populaciu(zoznam_miest, velkost_populacie):
@@ -260,17 +262,14 @@ if __name__ == '__main__':
     zoznam_miest.append((160 ,20))
 
     populacia = vytvor_populaciu(zoznam_miest, 50)
-    eliteSize = 5
+    eliteSize = int(0.1 * 50)
 
 
     for generation in range(generacie):
         #fitness = 0
-        #print('\nGeneration: {0}'.format(generation + 1))
-        #print('Population: {0}'.format(populacia))
         nova_populacia = []
         fitness = computeFitness(populacia) # fitnes celej populacie
         # najdem najlepsieho a ulozim ho do elity
-        #print('Fitness:    {0}'.format(fitness))
         print(fitness)
         fittest, dlzka, index = vyber_naj(populacia)
         nova_populacia.append(fittest)# vrati najlepsiu cestu
@@ -288,28 +287,20 @@ if __name__ == '__main__':
         popuu.pop(index)
         fittest, dlzka, index = vyber_naj(popuu)
         nova_populacia.append(fittest)# vrati najlepsiu cestu
-        popuu.pop(index)
-        fittest, dlzka, index = vyber_naj(popuu)
-        nova_populacia.append(fittest)# vrati najlepsiu cestu
-        popuu.pop(index)
-        fittest, dlzka, index = vyber_naj(popuu)
-        nova_populacia.append(fittest)# vrati najlepsiu cestu
 
         #print("Fittest ", dlzka)
         ##print(fittest)
         #nova_populacia.append(fittest) # ponecha si najlepsieho
         #print(nova_populacia)
-        for gen in range(0, len(populacia)-7):
-            parent1 = roulette_wheel_selection(populacia)
-            parent2 = roulette_wheel_selection(populacia)
-            #print(parent1)
-            #print(parent2)
-            #parent1 = tournament_selection(populacia)
-            #parent2 = tournament_selection(populacia)
+        for gen in range(0, len(populacia)-eliteSize):
+            #parent1 = roulette_wheel_selection(populacia)
+            #parent2 = roulette_wheel_selection(populacia)
+            parent1 = tournament_selection(populacia)
+            parent2 = tournament_selection(populacia)
             #if random.random() < pravdepodobnost_krizenia:
             offspring = skrizit(parent1, parent2)
             nova_populacia.append(offspring)
-        for gen in range(0, len(populacia)-7):
+        for gen in range(0, len(populacia)-eliteSize):
             nova_populacia[gen] = mutacia(nova_populacia[gen])
         populacia = nova_populacia
 
@@ -318,9 +309,9 @@ if __name__ == '__main__':
     fitness_celkovo.append(fitness_cesty((vzdialenost_cesty(fittest))))
     suma_fitness = sum(fitness_celkovo)
 
-    print(suma_fitness)
+    #print(suma_fitness)
 
-    #print(1/suma_fitness)
+    print(1/suma_fitness)
 
 
         # velkost populacie - aspon 20 -  pocet roznych shuffled ciest
