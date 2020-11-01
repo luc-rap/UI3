@@ -124,7 +124,7 @@ def mutacia(dieta):
 
 
 def tournament_selection(populacia, fitness_list):
-    tournament_size = 5
+    tournament_size = 3
     turnaj = []
     fit = []
     best_candidate = []
@@ -241,13 +241,21 @@ if __name__ == '__main__':
             fitness_celkovo.append(fitness_cesty((vzdialenost_cesty(i))))
         #fitness_list = list(reversed(sorted(fitness_celkovo)))
         #print(fitness_celkovo)
-        print(populacia)
-        print(fitness_celkovo)
+        #print(populacia)
+        #print(fitness_celkovo)
+        #print(len(populacia), len(fitness_celkovo))
+        #print("____________________")
+        #zipped_pairs = zip(fitness_celkovo, populacia)
         zipped_pairs = zip(fitness_celkovo, populacia)
-        populacia_sorted = [x for _, x in reversed(sorted(zipped_pairs))]
+        populacia_sorted = [x for _, x in (sorted(zipped_pairs))]
         #fitness_list = (sorted(fitness_celkovo))
-        print("____________________")
-        print(populacia_sorted)
+
+        #print(populacia_sorted)
+        populacia_sorted = list(reversed(populacia_sorted))
+        #print(populacia_sorted)
+        #print(sorted(fitness_celkovo))
+
+        #print("____________________")
 
         #print(fittest)
 
@@ -256,16 +264,20 @@ if __name__ == '__main__':
         #populacia = [x for y, x in sorted(zip(fitness_list, populacia))]
         #fitness_celkovo, populacia = ((list(t) for t in zip(reversed(*sorted(zip(fitness_celkovo, populacia))))))
 
-        fittest = populacia_sorted[0]
-        nova_populacia.append(fittest)# vrati najlepsiu cestu
-        fittest = populacia_sorted[1]
-        nova_populacia.append(fittest)# vrati najlepsiu cestu
-        fittest = populacia_sorted[2]
-        nova_populacia.append(fittest)# vrati najlepsiu cestu
-        fittest = populacia_sorted[3]
-        nova_populacia.append(fittest)# vrati najlepsiu cestu
-        fittest = populacia_sorted[4]
-        nova_populacia.append(fittest)# vrati najlepsiu cestu
+        for i in range(0, eliteSize):
+            fittest = populacia_sorted[i]
+            nova_populacia.append(fittest)
+
+        #fittest = populacia_sorted[0]
+        #nova_populacia.append(fittest)# vrati najlepsiu cestu
+        #fittest = populacia_sorted[1]
+        #nova_populacia.append(fittest)# vrati najlepsiu cestu
+        #fittest = populacia_sorted[2]
+        #nova_populacia.append(fittest)# vrati najlepsiu cestu
+        #fittest = populacia_sorted[3]
+        #nova_populacia.append(fittest)# vrati najlepsiu cestu
+        #fittest = populacia_sorted[4]
+        #nova_populacia.append(fittest)# vrati najlepsiu cestu
 
         for gen in range(0, len(populacia)-eliteSize):
             #parent1 = roulette_wheel_selection(populacia)
