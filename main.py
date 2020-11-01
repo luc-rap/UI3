@@ -4,6 +4,7 @@ import random
 import numpy
 import copy
 import time
+import csv
 
 p_mutacie = 0.1
 pravdepodobnost_krizenia = 0.6
@@ -60,8 +61,6 @@ def roulette_wheel_selection(populacia, fitness_celkovo):
         s += fitness_celkovo[i]
         if s > r:
             return populacia[i]
-
-
 
 
 def skrizit(rodic1, rodic2):
@@ -161,34 +160,39 @@ def vyber_naj(populacia):
     return best_cesta, max_fitness, index_maxa
 
 if __name__ == '__main__':
-    pocet_miest = 29
+    pocet_miest = 52
     zoznam_miest = []
     generacie = 2000
     fitness_celkovo = []
+    with open('berlin52.txt', 'r') as f:
+        for row in f:
+            x, y = row.strip().split()
+            zoznam_miest.append((int(x), int(y)))
+    print(zoznam_miest)
    # for i in range(0, pocet_miest):
        # x = int(random.random() * 200)
         #y = int(random.random() * 200)
         #zoznam_miest.append((x, y))
-    zoznam_miest.append((60, 200))
-    zoznam_miest.append((180, 200))
-    zoznam_miest.append((100, 180))
-    zoznam_miest.append((140, 180))
-    zoznam_miest.append((20, 160))
-    zoznam_miest.append((80 ,160))
-    zoznam_miest.append((200 ,160))
-    zoznam_miest.append((140 ,140))
-    zoznam_miest.append((40 ,120))
-    zoznam_miest.append((120 ,120))
-    zoznam_miest.append((180 ,100))
-    zoznam_miest.append((60 ,80))
-    zoznam_miest.append((100 ,80))
-    zoznam_miest.append((180 ,60))
-    zoznam_miest.append((20 ,40))
-    zoznam_miest.append((100 ,40))
-    zoznam_miest.append((200 ,40))
-    zoznam_miest.append((20 ,20))
-    zoznam_miest.append((60 ,20))
-    zoznam_miest.append((160 ,20))
+    #zoznam_miest.append((60, 200))
+    #zoznam_miest.append((180, 200))
+    #zoznam_miest.append((100, 180))
+    #zoznam_miest.append((140, 180))
+    #zoznam_miest.append((20, 160))
+    #zoznam_miest.append((80 ,160))
+    #zoznam_miest.append((200 ,160))
+    #zoznam_miest.append((140 ,140))
+    #zoznam_miest.append((40 ,120))
+    #zoznam_miest.append((120 ,120))
+    #zoznam_miest.append((180 ,100))
+    #zoznam_miest.append((60 ,80))
+    #zoznam_miest.append((100 ,80))
+    #zoznam_miest.append((180 ,60))
+    #zoznam_miest.append((20 ,40))
+    #zoznam_miest.append((100 ,40))
+    #zoznam_miest.append((200 ,40))
+    #zoznam_miest.append((20 ,20))
+    #zoznam_miest.append((60 ,20))
+    #zoznam_miest.append((160 ,20))
 
     #zoznam_miest.append((20833.3333	,17100))
     #zoznam_miest.append((20900	,17066.6667))
@@ -220,8 +224,8 @@ if __name__ == '__main__':
     #zoznam_miest.append((27433.3333,12400))
     #zoznam_miest.append((27462.5,12992.2222))
 
-    populacia = vytvor_populaciu(zoznam_miest, 50)
-    eliteSize = int(0.1 * 50)
+    populacia = vytvor_populaciu(zoznam_miest, 100)
+    eliteSize = int(0.1 * 100)
 
     start = time.time()
     for generation in range(generacie):
