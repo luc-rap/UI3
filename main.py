@@ -2,6 +2,7 @@ import math
 import operator
 import random
 import numpy
+import copy
 
 p_mutacie = 0.1
 pravdepodobnost_krizenia = 0.6
@@ -57,12 +58,15 @@ def roulette_wheel_selection(populacia):
         fitness_celkovo.append(fitness_cesty((vzdialenost_cesty(i))))
     suma_fitness = float(sum(fitness_celkovo))
 
-    dict = (sorted(d.items()))
-    print(dict)
+    dict = list(reversed(sorted(d.items())))
+    #print("suma fitnes", suma_fitness)
     r = random.uniform(0, suma_fitness)
-    for i in range(len(populacia)):
+    #print("r: ", r)
+    for i in range(len(dict)):
         #print(fitness_cesty((vzdialenost_cesty(i))))
+        #print((dict[i][0]))
         s += (dict[i][0])
+        #print(s)
         if s > r:
             return populacia[i]
 
@@ -191,11 +195,25 @@ def vytvor_populaciu(zoznam_miest, velkost_populacie):
     #print(mutacia_deti)
     #return mutacia_deti
 
+def vyber_naj(populacia):
+    max_fitness = 0
+    best_cesta = []
+    index = 0
+    index_maxa = 0
+    for i in populacia:
+        if fitness_cesty((vzdialenost_cesty(i))) > max_fitness:
+            max_fitness = fitness_cesty((vzdialenost_cesty(i)))
+            best_cesta = i
+            index_maxa = index
+        index += 1
+
+
+    return best_cesta, max_fitness, index_maxa
 
 if __name__ == '__main__':
     pocet_miest = 20
     zoznam_miest = []
-    generacie = 1000
+    generacie = 100
     fitness_celkovo = []
    # for i in range(0, pocet_miest):
        # x = int(random.random() * 200)
@@ -223,33 +241,49 @@ if __name__ == '__main__':
     zoznam_miest.append((160 ,20))
 
     populacia = vytvor_populaciu(zoznam_miest, 50)
+    eliteSize = 5
 
 
     for generation in range(generacie):
-        fitness = 0
-        #print('\nGeneration: {0}'.format(generation + 1))
+        #fitness = 0
+        print('\nGeneration: {0}'.format(generation + 1))
         #print('Population: {0}'.format(populacia))
         nova_populacia = []
         fitness = computeFitness(populacia) # fitnes celej populacie
+        # najdem najlepsieho a ulozim ho do elity
         print('Fitness:    {0}'.format(fitness))
-        #fittest = numpy.argmin(fitness)
-        #print('Fittest Route: {0} ({1})'.format(populacia[fittest], fitness[fittest]))
+        fittest, dlzka, index = vyber_naj(populacia)
+        nova_populacia.append(fittest)# vrati najlepsiu cestu
+        popuu = copy.deepcopy(populacia)
+        print(index)
+        popuu.pop(index)
+        fittest, dlzka, index = vyber_naj(popuu)
+        nova_populacia.append(fittest)# vrati najlepsiu cestu
+        popuu.pop(index)
+        fittest, dlzka, index = vyber_naj(popuu)
+        nova_populacia.append(fittest)# vrati najlepsiu cestu
 
-        for gen in range(0, len(populacia)):
+        #print("Fittest ", dlzka)
+        ##print(fittest)
+        #nova_populacia.append(fittest) # ponecha si najlepsieho
+        #print(nova_populacia)
+        for gen in range(0, len(populacia)-3):
             parent1 = roulette_wheel_selection(populacia)
             parent2 = roulette_wheel_selection(populacia)
+            print(parent1)
+            print(parent2)
             #parent1 = tournament_selection(populacia)
             #parent2 = tournament_selection(populacia)
             #if random.random() < pravdepodobnost_krizenia:
             offspring = skrizit(parent1, parent2)
             nova_populacia.append(offspring)
-        for gen in range(0, len(populacia)):
+        for gen in range(0, len(populacia)-3):
             nova_populacia[gen] = mutacia(nova_populacia[gen])
         populacia = nova_populacia
 
 
-    #print(populacia[fittest])
-    #fitness_celkovo.append(fitness_cesty((vzdialenost_cesty(populacia[fittest]))))
+    #print(populacia[0])
+    #fitness_celkovo.append(fitness_cesty((vzdialenost_cesty(populacia[0]))))
     #suma_fitness = sum(fitness_celkovo)
 
     #print(suma_fitness)
