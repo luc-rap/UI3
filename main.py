@@ -5,6 +5,7 @@ import numpy
 import copy
 import time
 import csv
+import matplotlib.pyplot as plt
 
 p_mutacie = 0.1
 pravdepodobnost_krizenia = 0.6
@@ -162,37 +163,37 @@ def vyber_naj(populacia):
 if __name__ == '__main__':
     pocet_miest = 52
     zoznam_miest = []
-    generacie = 2000
+    generacie = 1000
     fitness_celkovo = []
-    with open('berlin52.txt', 'r') as f:
-        for row in f:
-            x, y = row.strip().split()
-            zoznam_miest.append((int(x), int(y)))
-    print(zoznam_miest)
+    #with open('berlin52.txt', 'r') as f:
+        #for row in f:
+            #x, y = row.strip().split()
+            #zoznam_miest.append((int(x), int(y)))
+    #print(zoznam_miest)
    # for i in range(0, pocet_miest):
        # x = int(random.random() * 200)
         #y = int(random.random() * 200)
         #zoznam_miest.append((x, y))
-    #zoznam_miest.append((60, 200))
-    #zoznam_miest.append((180, 200))
-    #zoznam_miest.append((100, 180))
-    #zoznam_miest.append((140, 180))
-    #zoznam_miest.append((20, 160))
-    #zoznam_miest.append((80 ,160))
-    #zoznam_miest.append((200 ,160))
-    #zoznam_miest.append((140 ,140))
-    #zoznam_miest.append((40 ,120))
-    #zoznam_miest.append((120 ,120))
-    #zoznam_miest.append((180 ,100))
-    #zoznam_miest.append((60 ,80))
-    #zoznam_miest.append((100 ,80))
-    #zoznam_miest.append((180 ,60))
-    #zoznam_miest.append((20 ,40))
-    #zoznam_miest.append((100 ,40))
-    #zoznam_miest.append((200 ,40))
-    #zoznam_miest.append((20 ,20))
-    #zoznam_miest.append((60 ,20))
-    #zoznam_miest.append((160 ,20))
+    zoznam_miest.append((60, 200))
+    zoznam_miest.append((180, 200))
+    zoznam_miest.append((100, 180))
+    zoznam_miest.append((140, 180))
+    zoznam_miest.append((20, 160))
+    zoznam_miest.append((80 ,160))
+    zoznam_miest.append((200 ,160))
+    zoznam_miest.append((140 ,140))
+    zoznam_miest.append((40 ,120))
+    zoznam_miest.append((120 ,120))
+    zoznam_miest.append((180 ,100))
+    zoznam_miest.append((60 ,80))
+    zoznam_miest.append((100 ,80))
+    zoznam_miest.append((180 ,60))
+    zoznam_miest.append((20 ,40))
+    zoznam_miest.append((100 ,40))
+    zoznam_miest.append((200 ,40))
+    zoznam_miest.append((20 ,20))
+    zoznam_miest.append((60 ,20))
+    zoznam_miest.append((160 ,20))
 
     #zoznam_miest.append((20833.3333	,17100))
     #zoznam_miest.append((20900	,17066.6667))
@@ -263,23 +264,12 @@ if __name__ == '__main__':
         for i in range(0, eliteSize):
             fittest = populacia_sorted[i]
             nova_populacia.append(fittest)
-
-        #fittest = populacia_sorted[0]
-        #nova_populacia.append(fittest)# vrati najlepsiu cestu
-        #fittest = populacia_sorted[1]
-        #nova_populacia.append(fittest)# vrati najlepsiu cestu
-        #fittest = populacia_sorted[2]
-        #nova_populacia.append(fittest)# vrati najlepsiu cestu
-        #fittest = populacia_sorted[3]
-        #nova_populacia.append(fittest)# vrati najlepsiu cestu
-        #fittest = populacia_sorted[4]
-        #nova_populacia.append(fittest)# vrati najlepsiu cestu
-
         for gen in range(0, len(populacia)-eliteSize):
-            parent1 = roulette_wheel_selection(populacia_sorted, list(reversed(sorted(fitness_celkovo))))
-            parent2 = roulette_wheel_selection(populacia_sorted, list(reversed(sorted(fitness_celkovo))))
-            #parent1 = tournament_selection(populacia, fitness_celkovo)
-            #parent2 = tournament_selection(populacia, fitness_celkovo)
+            #parent1 = roulette_wheel_selection(populacia_sorted, list(reversed(sorted(fitness_celkovo))))
+            #parent2 = roulette_wheel_selection(populacia_sorted, list(reversed(sorted(fitness_celkovo))))
+            parent1 = tournament_selection(populacia, fitness_celkovo)
+            parent2 = tournament_selection(populacia, fitness_celkovo)
+            # zisti, kto z (offspring, parent1, parent2) je najlepsi a toho posli do novej populacie
             #if random.random() < pravdepodobnost_krizenia:
             offspring = skrizit(parent1, parent2)
             nova_populacia.append(offspring)
@@ -293,6 +283,16 @@ if __name__ == '__main__':
     print("Hladanie trvalo: ", (stop - start), "s")
     fittest, dlzka, index = vyber_naj(populacia)
     print(fittest)
+    fig = plt.figure(figsize=(10, 5))
+    ax1 = fig.add_subplot(121)
+    #ax2 = fig.add_subplot(122)
+    for first, second in zip(fittest[:-1], fittest[1:]):
+        ax1.plot([first[0], second[0]] , [first[1], second[1]], 'b')
+    ax1.plot([fittest[0][0], fittest[-1][0]], [fittest[0][1], fittest[-1][1]], 'b')
+    for c in fittest:
+        ax1.plot(c[0], c[1], 'ro')
+
+    plt.show()
     fitness_celkovo = []
     fitness_celkovo.append(fitness_cesty((vzdialenost_cesty(fittest))))
     suma_fitness = sum(fitness_celkovo)
