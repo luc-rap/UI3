@@ -47,28 +47,20 @@ def computeFitness(populacia):
     return suma_fitness
 
 
-def roulette_wheel_selection(populacia):
-    fitness_celkovo = []
+def roulette_wheel_selection(populacia, fitness_celkovo):
+    #fitness_celkovo = []
     pravdepodobnost = []
     rodicia_populacie = []
     probabilities = []
     d = {}
     s = 0
-    for i in populacia:
-        #print(i)
-        d[fitness_cesty(vzdialenost_cesty(i))] = i
-        fitness_celkovo.append(fitness_cesty((vzdialenost_cesty(i))))
     suma_fitness = float(sum(fitness_celkovo))
-    rel_fitness = [f/suma_fitness for f in fitness_celkovo]
-    # Generate probability intervals for each individual
-    probs = [sum(rel_fitness[:i+1]) for i in range(len(rel_fitness))]
-    # Draw new population
-    new_population = []
-    #for n in xrange(num):
     r = random.uniform(0, suma_fitness)
-    for (i, individual) in enumerate(populacia):
-        if r <= probs[i]:
-            return individual
+    for i in range(0, len(populacia)):
+        s += fitness_celkovo[i]
+        if s > r:
+            return populacia[i]
+
 
 
 
@@ -169,9 +161,9 @@ def vyber_naj(populacia):
     return best_cesta, max_fitness, index_maxa
 
 if __name__ == '__main__':
-    pocet_miest = 20
+    pocet_miest = 29
     zoznam_miest = []
-    generacie = 1000
+    generacie = 2000
     fitness_celkovo = []
    # for i in range(0, pocet_miest):
        # x = int(random.random() * 200)
@@ -253,7 +245,7 @@ if __name__ == '__main__':
         #print(populacia_sorted)
         populacia_sorted = list(reversed(populacia_sorted))
         #print(populacia_sorted)
-        #print(sorted(fitness_celkovo))
+        #print(list(reversed(sorted(fitness_celkovo))))
 
         #print("____________________")
 
@@ -280,10 +272,10 @@ if __name__ == '__main__':
         #nova_populacia.append(fittest)# vrati najlepsiu cestu
 
         for gen in range(0, len(populacia)-eliteSize):
-            #parent1 = roulette_wheel_selection(populacia)
-            #parent2 = roulette_wheel_selection(populacia)
-            parent1 = tournament_selection(populacia, fitness_celkovo)
-            parent2 = tournament_selection(populacia, fitness_celkovo)
+            parent1 = roulette_wheel_selection(populacia_sorted, list(reversed(sorted(fitness_celkovo))))
+            parent2 = roulette_wheel_selection(populacia_sorted, list(reversed(sorted(fitness_celkovo))))
+            #parent1 = tournament_selection(populacia, fitness_celkovo)
+            #parent2 = tournament_selection(populacia, fitness_celkovo)
             #if random.random() < pravdepodobnost_krizenia:
             offspring = skrizit(parent1, parent2)
             nova_populacia.append(offspring)
