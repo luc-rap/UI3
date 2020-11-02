@@ -54,10 +54,9 @@ def roulette_wheel_selection(populacia, fitness_celkovo):
     pravdepodobnost = []
     rodicia_populacie = []
     probabilities = []
-    d = {}
     s = 0
     suma_fitness = float(sum(fitness_celkovo))
-    r = random.uniform(0, suma_fitness)
+    r = numpy.random.uniform(0, suma_fitness)
     for i in range(0, len(populacia)):
         s += fitness_celkovo[i]
         if s > r:
@@ -160,40 +159,54 @@ def vyber_naj(populacia):
 
     return best_cesta, max_fitness, index_maxa
 
+
+def best_of_best(offspring, parent1, parent2):
+    fitness_offspring = fitness_cesty((vzdialenost_cesty(offspring)))
+    fitness_parent1 = fitness_cesty((vzdialenost_cesty(parent1)))
+    fitness_parent2 = fitness_cesty((vzdialenost_cesty(parent2)))
+    if max(fitness_offspring, fitness_parent1, fitness_parent2) == fitness_offspring:
+        return offspring
+    elif max(fitness_offspring, fitness_parent1, fitness_parent2) == fitness_parent1:
+        return parent1
+    else:
+        return parent2
+    #return max(fitness_offspring, fitness_parent1, fitness_parent2)
+
+
 if __name__ == '__main__':
-    pocet_miest = 52
+    pocet_miest = 20
     zoznam_miest = []
     generacie = 1000
     fitness_celkovo = []
-    #with open('berlin52.txt', 'r') as f:
-        #for row in f:
-            #x, y = row.strip().split()
-            #zoznam_miest.append((int(x), int(y)))
+    with open('mapa.txt', 'r') as f:
+        for row in f:
+            x, y = row.strip().split()
+            zoznam_miest.append((int(x), int(y)))
     #print(zoznam_miest)
    # for i in range(0, pocet_miest):
        # x = int(random.random() * 200)
         #y = int(random.random() * 200)
         #zoznam_miest.append((x, y))
-    zoznam_miest.append((60, 200))
-    zoznam_miest.append((180, 200))
-    zoznam_miest.append((100, 180))
-    zoznam_miest.append((140, 180))
-    zoznam_miest.append((20, 160))
-    zoznam_miest.append((80 ,160))
-    zoznam_miest.append((200 ,160))
-    zoznam_miest.append((140 ,140))
-    zoznam_miest.append((40 ,120))
-    zoznam_miest.append((120 ,120))
-    zoznam_miest.append((180 ,100))
-    zoznam_miest.append((60 ,80))
-    zoznam_miest.append((100 ,80))
-    zoznam_miest.append((180 ,60))
-    zoznam_miest.append((20 ,40))
-    zoznam_miest.append((100 ,40))
-    zoznam_miest.append((200 ,40))
-    zoznam_miest.append((20 ,20))
-    zoznam_miest.append((60 ,20))
-    zoznam_miest.append((160 ,20))
+    #zoznam_miest.append((60, 200))
+    #zoznam_miest.append((180, 200))
+    #zoznam_miest.append((100, 180))
+    #zoznam_miest.append((140, 180))
+    #zoznam_miest.append((20, 160))
+    #zoznam_miest.append((80 ,160))
+    #zoznam_miest.append((200 ,160))
+    #zoznam_miest.append((140 ,140))
+    #zoznam_miest.append((40 ,120))
+    #zoznam_miest.append((120 ,120))
+    #zoznam_miest.append((180 ,100))
+    #zoznam_miest.append((60 ,80))
+    #zoznam_miest.append((100 ,80))
+    #zoznam_miest.append((180 ,60))
+    #zoznam_miest.append((20 ,40))
+    #zoznam_miest.append((100 ,40))
+    #zoznam_miest.append((200 ,40))
+    #zoznam_miest.append((20 ,20))
+    #zoznam_miest.append((60 ,20))
+    #zoznam_miest.append((160 ,20))
 
     #zoznam_miest.append((20833.3333	,17100))
     #zoznam_miest.append((20900	,17066.6667))
@@ -272,6 +285,7 @@ if __name__ == '__main__':
             # zisti, kto z (offspring, parent1, parent2) je najlepsi a toho posli do novej populacie
             #if random.random() < pravdepodobnost_krizenia:
             offspring = skrizit(parent1, parent2)
+            #offspring = best_of_best(offspring, parent1, parent2)
             nova_populacia.append(offspring)
         for gen in range(0, len(populacia)-eliteSize):
             nova_populacia[gen] = mutacia(nova_populacia[gen])
@@ -292,7 +306,7 @@ if __name__ == '__main__':
     for c in fittest:
         ax1.plot(c[0], c[1], 'ro')
 
-    plt.show()
+
     fitness_celkovo = []
     fitness_celkovo.append(fitness_cesty((vzdialenost_cesty(fittest))))
     suma_fitness = sum(fitness_celkovo)
@@ -300,6 +314,7 @@ if __name__ == '__main__':
     #print(suma_fitness)
 
     print(1/suma_fitness)
+    plt.show()
 
 
         # velkost populacie - aspon 20 -  pocet roznych shuffled ciest
