@@ -1,21 +1,16 @@
 import math
-import operator
 import random
 import numpy
-import copy
 import time
-import csv
 import matplotlib.pyplot as plt
 
+# pravdepodobnost mutacie
 p_mutacie = 0.1
-pravdepodobnost_krizenia = 0.6
-
 
 # vzdialenost dvoch miest na zaklade euklidovskej vzdialenosti
 def vzdialenost(mesto_1, mesto_2):
     d = math.sqrt((mesto_1[0] - mesto_2[0])**2 + (mesto_1[1]-mesto_2[1])**2)
     return d
-
 
 # vypocita celkovu vzdialenost celej cesty // chromozomu
 def vzdialenost_cesty(cesta):
@@ -33,14 +28,9 @@ def vzdialenost_cesty(cesta):
 
 def fitness_cesty(dlzka_cesty):
     fitness = 1 / float(dlzka_cesty)
-    # fitness = (dlzka_cesty)
     return fitness
 
 # vypocitame celkovu sumu fitnessu
-# vyratame pravdepodobnost jednotlivych ciest s fitness funkciami
-# choice na zaklade tejto pravdepodobnosti vyberie sample. pravdepdobnost je asociovana s kazdym polickom v array
-# rodicia populacie maju velkost populacie
-
 def computeFitness(populacia):
     fitness_celkovo = []
     for i in populacia:
@@ -50,10 +40,6 @@ def computeFitness(populacia):
 
 
 def roulette_wheel_selection(populacia, fitness_celkovo):
-    #fitness_celkovo = []
-    pravdepodobnost = []
-    rodicia_populacie = []
-    probabilities = []
     s = 0
     suma_fitness = float(sum(fitness_celkovo))
     r = numpy.random.uniform(0, suma_fitness)
@@ -62,58 +48,43 @@ def roulette_wheel_selection(populacia, fitness_celkovo):
         if s > r:
             return populacia[i]
 
-
+# dvojbodove krizenie
 def skrizit(rodic1, rodic2):
-    #print("RODICIA")
-    #print(rodic1)
-    #print(rodic2)
     potomok = []
     rodic1_potomok = []
     rodic2_potomok = []
+    # nahodne vyberiem dve suradnice - dva body krizenia z prveho rodica
     prvy_bod_krizenia = int(random.random() * len(rodic1))
-    #print(prvy_bod_krizenia)
     druhy_bod_krizenia = int(random.random() * len(rodic1))
-    #print(druhy_bod_krizenia)
 
     start = min(prvy_bod_krizenia, druhy_bod_krizenia)
     end = max(prvy_bod_krizenia, druhy_bod_krizenia)
-
+    # usek z prveho rodica dame na rovnake miesto v potomkovi
     for i in range(start, end):
-        rodic1_potomok.append((rodic1[i][0],rodic1[i][1]))
-    #print(rodic1_potomok)
-
+        rodic1_potomok.append((rodic1[i][0], rodic1[i][1]))
+    # z druheho rodica vyberame zvysne mesta
     for j in rodic2:
         if j not in rodic1_potomok:
             rodic2_potomok.append(j)
-    #print(rodic2_potomok)
-
+    # finalny potomok
     potomok = rodic2_potomok[:start] + rodic1_potomok + rodic2_potomok[start:]
-    #print("SKRIZENE DIETA:")
-    #print(potomok)
     return potomok
 
 
-    # dvojbodove krizenie -  Z prvého rodiča vyberieme úsek cesty medzi dvoma náhodne zvolenými bodmi kríženia
-    # a dáme ho do potomka na rovnaké miesto. Z druhého rodiča potom vyberieme zvyšné mestá v tom
-    # poradí, ako sa nachádzajú v druhom rodičovi a zaplníme tým ostatné miesta vo vektore.
-
-
+# vymena susedov na mutaciu
 def vymen_susedov(dieta, swap):
     dieta[swap], dieta[swap+1] = dieta[swap+1], dieta[swap]
     return dieta
 
-
-# vymena 2 susednych miest
+# mutacia s urcitou pravdepodobnostou
 def mutacia(dieta):
-    #print(dieta)
     for i in range(len(dieta)):
         if random.random() < p_mutacie:
-            swap_index = int(random.random() * len(dieta)) # index
+            swap_index = int(random.random() * len(dieta))
             dieta = vymen_susedov(dieta, swap_index-1)
-
     return dieta
 
-
+# vyber turnajom - vyberiem 3 a z nich najlepsieho
 def tournament_selection(populacia, fitness_list):
     tournament_size = 3
     turnaj = []
@@ -124,26 +95,22 @@ def tournament_selection(populacia, fitness_list):
         random_index = int(random.random() * len(populacia))
         turnaj.append(populacia[random_index])
         fit.append(fitness_list[random_index])
-    #fittest = [x for y, x in sorted(zip(fit, turnaj))]
-    #print(fittest)
     for i in range(0, tournament_size):
         if fit[i] > best_fitness:
             best_fitness = fit[i]
             best_candidate = turnaj[i]
-
     return best_candidate
 
-# nahodne premiesana cesta je jedna populacia
+
+# nahodnym premiesanim vytvori populaciu, velkkost populacie je dana 100
 def vytvor_populaciu(zoznam_miest, velkost_populacie):
     populacia = []
-
     for i in range(0, velkost_populacie):
         nova_populacia = random.sample(zoznam_miest, len(zoznam_miest))
         populacia.append(nova_populacia)
-
     return populacia
 
-
+# vyberie jedinca s najlepsim fitnes
 def vyber_naj(populacia):
     max_fitness = 0
     best_cesta = []
@@ -155,174 +122,105 @@ def vyber_naj(populacia):
             best_cesta = i
             index_maxa = index
         index += 1
-
-
     return best_cesta, max_fitness, index_maxa
 
 
-def best_of_best(offspring, parent1, parent2):
-    fitness_offspring = fitness_cesty((vzdialenost_cesty(offspring)))
-    fitness_parent1 = fitness_cesty((vzdialenost_cesty(parent1)))
-    fitness_parent2 = fitness_cesty((vzdialenost_cesty(parent2)))
-    if max(fitness_offspring, fitness_parent1, fitness_parent2) == fitness_offspring:
-        return offspring
-    elif max(fitness_offspring, fitness_parent1, fitness_parent2) == fitness_parent1:
-        return parent1
-    else:
-        return parent2
-    #return max(fitness_offspring, fitness_parent1, fitness_parent2)
-
-
 if __name__ == '__main__':
-    pocet_miest = 20
-    zoznam_miest = []
-    generacie = 1000
-    fitness_celkovo = []
-    with open('mapa.txt', 'r') as f:
-        for row in f:
-            x, y = row.strip().split()
-            zoznam_miest.append((int(x), int(y)))
-    #print(zoznam_miest)
-   # for i in range(0, pocet_miest):
-       # x = int(random.random() * 200)
-        #y = int(random.random() * 200)
-        #zoznam_miest.append((x, y))
-    #zoznam_miest.append((60, 200))
-    #zoznam_miest.append((180, 200))
-    #zoznam_miest.append((100, 180))
-    #zoznam_miest.append((140, 180))
-    #zoznam_miest.append((20, 160))
-    #zoznam_miest.append((80 ,160))
-    #zoznam_miest.append((200 ,160))
-    #zoznam_miest.append((140 ,140))
-    #zoznam_miest.append((40 ,120))
-    #zoznam_miest.append((120 ,120))
-    #zoznam_miest.append((180 ,100))
-    #zoznam_miest.append((60 ,80))
-    #zoznam_miest.append((100 ,80))
-    #zoznam_miest.append((180 ,60))
-    #zoznam_miest.append((20 ,40))
-    #zoznam_miest.append((100 ,40))
-    #zoznam_miest.append((200 ,40))
-    #zoznam_miest.append((20 ,20))
-    #zoznam_miest.append((60 ,20))
-    #zoznam_miest.append((160 ,20))
 
-    #zoznam_miest.append((20833.3333	,17100))
-    #zoznam_miest.append((20900	,17066.6667))
-    #zoznam_miest.append((21300	,13016.6667))
-    #zoznam_miest.append((21600,	14150))
-    #zoznam_miest.append((21600	,14966.6667))
-    #zoznam_miest.append((21600,	16500))
-    #zoznam_miest.append((22183.3333,13133.3333))
-    #zoznam_miest.append((22583.3333,	14300))
-    #zoznam_miest.append((22683.3333	,12716.6667))
-    #zoznam_miest.append((23616.6667,	15866.6667))
-    #zoznam_miest.append((23700,	15933.3333))
-    #zoznam_miest.append((23883.3333,	14533.3333))
-    #zoznam_miest.append((24166.6667	,13250))
-    #zoznam_miest.append((25149.1667	,12365.8333))
-    #zoznam_miest.append((26133.3333	,14500))
-    #zoznam_miest.append((26150	,10550))
-    #zoznam_miest.append((26283.3333,	12766.6667))
-    #zoznam_miest.append((26433.3333	,13433.3333))
-    #zoznam_miest.append((26550	,13850))
-    #zoznam_miest.append((26733.3333,11683.3333))
-    #zoznam_miest.append((27026.1111,13051.9444))
-    #zoznam_miest.append((27096.1111	,13415.8333))
-    #zoznam_miest.append((27153.6111	,13203.3333))
-    #zoznam_miest.append((27166.6667	,9833.3333))
-    #zoznam_miest.append((27233.3333	,10450))
-    #zoznam_miest.append((27233.3333	,11783.3333))
-    #zoznam_miest.append((27266.6667	,10383.3333))
-    #zoznam_miest.append((27433.3333,12400))
-    #zoznam_miest.append((27462.5,12992.2222))
+    zoznam_miest = []
+    volba = input("Vyber testovania: subor - stlacte s / nahodne suradnice - stlacte ns: ")
+    if volba == 's':
+        nazov_suboru = input("Zadajte nazov suboru: ")
+        try:
+            with open(nazov_suboru, 'r') as f:
+                for row in f:
+                    x, y = row.strip().split()
+                    zoznam_miest.append((int(x), int(y)))
+        except FileNotFoundError:
+            print("Subor nenajdeny.")
+            exit()
+
+    elif volba == 'ns':
+        pocet_miest = int(input("Zadajte pocet miest (20-40): "))
+        for i in range(0, pocet_miest):
+            x = int(random.random() * 200)
+            y = int(random.random() * 200)
+            zoznam_miest.append((x, y))
+
+    else:
+        print("Neznamy prikaz.")
+        exit()
+
+    generacie = int(input("Zadajte pocet generacii (odporucana velkost: 1000): "))
+    vyber_rodica = input("Zadajte sposob vyberu rodicov: turnaj - stlacte t / ruleta - stlacte r ")
+
+    fig = plt.figure(figsize=(10, 5))
+    ax1 = fig.add_subplot(121)
+    ax2 = fig.add_subplot(122)
+    for c in zoznam_miest:
+        for first, second in zip(zoznam_miest[:-1], zoznam_miest[1:]):
+            ax1.plot([first[0], second[0]] , [first[1], second[1]], 'b')
+            ax1.plot([zoznam_miest[0][0], zoznam_miest[-1][0]], [zoznam_miest[0][1], zoznam_miest[-1][1]], 'b')
+        ax1.plot(c[0], c[1], 'ro')
+
+    povodna_dlzka = vzdialenost_cesty(zoznam_miest)
+    print("Povodna dlzka: ", povodna_dlzka)
 
     populacia = vytvor_populaciu(zoznam_miest, 100)
     eliteSize = int(0.1 * 100)
 
     start = time.time()
-    for generation in range(generacie):
+
+    for generacia in range(generacie):
         nova_populacia = []
         fitness_celkovo = []
         fitness_list = []
-        #fitness = computeFitness(populacia) # fitnes celej populacie
         for i in populacia:
             fitness_celkovo.append(fitness_cesty((vzdialenost_cesty(i))))
-        #fitness_list = list(reversed(sorted(fitness_celkovo)))
-        #print(fitness_celkovo)
-        #print(populacia)
-        #print(fitness_celkovo)
-        #print(len(populacia), len(fitness_celkovo))
-        #print("____________________")
-        #zipped_pairs = zip(fitness_celkovo, populacia)
+
         zipped_pairs = zip(fitness_celkovo, populacia)
         populacia_sorted = [x for _, x in (sorted(zipped_pairs))]
-        #fitness_list = (sorted(fitness_celkovo))
 
-        #print(populacia_sorted)
         populacia_sorted = list(reversed(populacia_sorted))
-        #print(populacia_sorted)
-        #print(list(reversed(sorted(fitness_celkovo))))
-
-        #print("____________________")
-
-        #print(fittest)
-
-
-
-        #populacia = [x for y, x in sorted(zip(fitness_list, populacia))]
-        #fitness_celkovo, populacia = ((list(t) for t in zip(reversed(*sorted(zip(fitness_celkovo, populacia))))))
 
         for i in range(0, eliteSize):
             fittest = populacia_sorted[i]
             nova_populacia.append(fittest)
+
         for gen in range(0, len(populacia)-eliteSize):
-            #parent1 = roulette_wheel_selection(populacia_sorted, list(reversed(sorted(fitness_celkovo))))
-            #parent2 = roulette_wheel_selection(populacia_sorted, list(reversed(sorted(fitness_celkovo))))
-            parent1 = tournament_selection(populacia, fitness_celkovo)
-            parent2 = tournament_selection(populacia, fitness_celkovo)
-            # zisti, kto z (offspring, parent1, parent2) je najlepsi a toho posli do novej populacie
-            #if random.random() < pravdepodobnost_krizenia:
+            if vyber_rodica == 't':
+                parent1 = tournament_selection(populacia, fitness_celkovo)
+                parent2 = tournament_selection(populacia, fitness_celkovo)
+            elif vyber_rodica == 'r':
+                parent1 = roulette_wheel_selection(populacia_sorted, list(reversed(sorted(fitness_celkovo))))
+                parent2 = roulette_wheel_selection(populacia_sorted, list(reversed(sorted(fitness_celkovo))))
+            else:
+                print("Neznamy prikaz")
+                exit()
+
             offspring = skrizit(parent1, parent2)
-            #offspring = best_of_best(offspring, parent1, parent2)
             nova_populacia.append(offspring)
-        for gen in range(0, len(populacia)-eliteSize):
+        for gen in range(eliteSize, len(populacia)):
             nova_populacia[gen] = mutacia(nova_populacia[gen])
         populacia = nova_populacia
-
-
 
     stop = time.time()
     print("Hladanie trvalo: ", (stop - start), "s")
     fittest, dlzka, index = vyber_naj(populacia)
+    fittest.append(fittest[0])
     print(fittest)
-    fig = plt.figure(figsize=(10, 5))
-    ax1 = fig.add_subplot(121)
-    #ax2 = fig.add_subplot(122)
+
     for first, second in zip(fittest[:-1], fittest[1:]):
-        ax1.plot([first[0], second[0]] , [first[1], second[1]], 'b')
-    ax1.plot([fittest[0][0], fittest[-1][0]], [fittest[0][1], fittest[-1][1]], 'b')
+        ax2.plot([first[0], second[0]], [first[1], second[1]], 'b')
+    ax2.plot([fittest[0][0], fittest[-1][0]], [fittest[0][1], fittest[-1][1]], 'b')
     for c in fittest:
-        ax1.plot(c[0], c[1], 'ro')
+        ax2.plot(c[0], c[1], 'ro')
 
-
-    fitness_celkovo = []
-    fitness_celkovo.append(fitness_cesty((vzdialenost_cesty(fittest))))
-    suma_fitness = sum(fitness_celkovo)
-
-    #print(suma_fitness)
-
-    print(1/suma_fitness)
+    konecna_dlzka = vzdialenost_cesty(fittest)
+    print("Konecna dlzka: ", konecna_dlzka)
     plt.show()
 
 
-        # velkost populacie - aspon 20 -  pocet roznych shuffled ciest
-        # 20 nahodnych jedincvo
-        # jedinec == jedna mozna cesta == chromozom
-        # jedno mesto - gen
-        # fitnes skore - dlzka celej cesty
-        #  Je potrebné implementovať aspoň dve metódy výberu rodičov z populácie.
 
 
 
