@@ -153,7 +153,8 @@ if __name__ == '__main__':
 
     generacie = int(input("Zadajte pocet generacii (odporucana velkost: 1000): "))
     vyber_rodica = input("Zadajte sposob vyberu rodicov: turnaj - stlacte t / ruleta - stlacte r ")
-
+    velkost_populacie = int(input("Zadajte velkost populacie (napr. 100) "))
+    # vykreslenie grafu
     fig = plt.figure(figsize=(10, 5))
     ax1 = fig.add_subplot(121)
     ax2 = fig.add_subplot(122)
@@ -166,8 +167,9 @@ if __name__ == '__main__':
     povodna_dlzka = vzdialenost_cesty(zoznam_miest)
     print("Povodna dlzka: ", povodna_dlzka)
 
-    populacia = vytvor_populaciu(zoznam_miest, 100)
-    eliteSize = int(0.1 * 100)
+    populacia = vytvor_populaciu(zoznam_miest, velkost_populacie)
+    eliteSize = int(0.1 * velkost_populacie)
+    # velkost elity je 10% z velkosti populacie
 
     start = time.time()
 
@@ -178,6 +180,7 @@ if __name__ == '__main__':
         for i in populacia:
             fitness_celkovo.append(fitness_cesty((vzdialenost_cesty(i))))
 
+        # usporiada miesta podla fitnes, aby sme mohli vybrat najlepsich do elity
         zipped_pairs = zip(fitness_celkovo, populacia)
         populacia_sorted = [x for _, x in (sorted(zipped_pairs))]
 
@@ -186,7 +189,7 @@ if __name__ == '__main__':
         for i in range(0, eliteSize):
             fittest = populacia_sorted[i]
             nova_populacia.append(fittest)
-
+        # tvorba novej generacie
         for gen in range(0, len(populacia)-eliteSize):
             if vyber_rodica == 't':
                 parent1 = tournament_selection(populacia, fitness_celkovo)
@@ -206,17 +209,18 @@ if __name__ == '__main__':
 
     stop = time.time()
     print("Hladanie trvalo: ", (stop - start), "s")
+    konecna_dlzka = vzdialenost_cesty(fittest)
     fittest, dlzka, index = vyber_naj(populacia)
     fittest.append(fittest[0])
     print(fittest)
-
+    # kreslenie grafu
     for first, second in zip(fittest[:-1], fittest[1:]):
         ax2.plot([first[0], second[0]], [first[1], second[1]], 'b')
     ax2.plot([fittest[0][0], fittest[-1][0]], [fittest[0][1], fittest[-1][1]], 'b')
     for c in fittest:
         ax2.plot(c[0], c[1], 'ro')
 
-    konecna_dlzka = vzdialenost_cesty(fittest)
+
     print("Konecna dlzka: ", konecna_dlzka)
     plt.show()
 
