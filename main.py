@@ -78,10 +78,9 @@ def vymen_susedov(dieta, swap):
 
 # mutacia s urcitou pravdepodobnostou
 def mutacia(dieta):
-    for i in range(len(dieta)):
-        if random.random() < p_mutacie:
-            swap_index = int(random.random() * len(dieta))
-            dieta = vymen_susedov(dieta, swap_index-1)
+    if random.random() < p_mutacie:
+        swap_index = int(random.random() * len(dieta))
+        dieta = vymen_susedov(dieta, swap_index-1)
     return dieta
 
 # vyber turnajom - vyberiem 3 a z nich najlepsieho
@@ -202,9 +201,8 @@ if __name__ == '__main__':
                 exit()
 
             offspring = skrizit(parent1, parent2)
+            offspring = mutacia(offspring)
             nova_populacia.append(offspring)
-        for gen in range(eliteSize, len(populacia)):
-            nova_populacia[gen] = mutacia(nova_populacia[gen])
         populacia = nova_populacia
 
     stop = time.time()
