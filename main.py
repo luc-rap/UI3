@@ -7,10 +7,12 @@ import matplotlib.pyplot as plt
 # pravdepodobnost mutacie
 p_mutacie = 0.1
 
+
 # vzdialenost dvoch miest na zaklade euklidovskej vzdialenosti
 def vzdialenost(mesto_1, mesto_2):
     d = math.sqrt((mesto_1[0] - mesto_2[0])**2 + (mesto_1[1]-mesto_2[1])**2)
     return d
+
 
 # vypocita celkovu vzdialenost celej cesty // chromozomu
 def vzdialenost_cesty(cesta):
@@ -25,20 +27,12 @@ def vzdialenost_cesty(cesta):
             dlzka_cesty += vzdialenost(mesto_1, mesto_2)
     return dlzka_cesty
 
-
+# prevratena hodnota dlzky celej cesty
 def fitness_cesty(dlzka_cesty):
     fitness = 1 / float(dlzka_cesty)
     return fitness
 
-# vypocitame celkovu sumu fitnessu
-def computeFitness(populacia):
-    fitness_celkovo = []
-    for i in populacia:
-        fitness_celkovo.append(fitness_cesty((vzdialenost_cesty(i))))
-    suma_fitness = sum(fitness_celkovo)
-    return suma_fitness
-
-
+# vyber rodica pomocou rulety
 def roulette_wheel_selection(populacia, fitness_celkovo):
     s = 0
     suma_fitness = float(sum(fitness_celkovo))
@@ -47,6 +41,7 @@ def roulette_wheel_selection(populacia, fitness_celkovo):
         s += fitness_celkovo[i]
         if s > r:
             return populacia[i]
+
 
 # dvojbodove krizenie
 def skrizit(rodic1, rodic2):
@@ -76,12 +71,14 @@ def vymen_susedov(dieta, swap):
     dieta[swap], dieta[swap+1] = dieta[swap+1], dieta[swap]
     return dieta
 
+
 # mutacia s urcitou pravdepodobnostou
 def mutacia(dieta):
     if random.random() < p_mutacie:
         swap_index = int(random.random() * len(dieta))
         dieta = vymen_susedov(dieta, swap_index-1)
     return dieta
+
 
 # vyber turnajom - vyberiem 3 a z nich najlepsieho
 def tournament_selection(populacia, fitness_list):
@@ -101,13 +98,14 @@ def tournament_selection(populacia, fitness_list):
     return best_candidate
 
 
-# nahodnym premiesanim vytvori populaciu, velkkost populacie je dana 100
+# nahodnym premiesanim vytvori populaciu
 def vytvor_populaciu(zoznam_miest, velkost_populacie):
     populacia = []
     for i in range(0, velkost_populacie):
         nova_populacia = random.sample(zoznam_miest, len(zoznam_miest))
         populacia.append(nova_populacia)
     return populacia
+
 
 # vyberie jedinca s najlepsim fitnes
 def vyber_naj(populacia):
@@ -150,23 +148,25 @@ if __name__ == '__main__':
         print("Neznamy prikaz.")
         exit()
 
-    generacie = int(input("Zadajte pocet generacii (odporucana velkost: 1000): "))
+    generacie = int(input("Zadajte pocet generacii (napr. velkost: 500): "))
     vyber_rodica = input("Zadajte sposob vyberu rodicov: turnaj - stlacte t / ruleta - stlacte r ")
-    velkost_populacie = int(input("Zadajte velkost populacie (napr. 100) "))
+    velkost_populacie = int(input("Zadajte velkost populacie (napr. 100-150) "))
+
     # vykreslenie grafu
     fig = plt.figure(figsize=(10, 5))
     ax1 = fig.add_subplot(121)
     ax2 = fig.add_subplot(122)
+    for first, second in zip(zoznam_miest[:-1], zoznam_miest[1:]):
+        ax1.plot([first[0], second[0]] , [first[1], second[1]], 'b')
+    ax1.plot([zoznam_miest[0][0], zoznam_miest[-1][0]], [zoznam_miest[0][1], zoznam_miest[-1][1]], 'b')
     for c in zoznam_miest:
-        for first, second in zip(zoznam_miest[:-1], zoznam_miest[1:]):
-            ax1.plot([first[0], second[0]] , [first[1], second[1]], 'b')
-            ax1.plot([zoznam_miest[0][0], zoznam_miest[-1][0]], [zoznam_miest[0][1], zoznam_miest[-1][1]], 'b')
         ax1.plot(c[0], c[1], 'ro')
 
     povodna_dlzka = vzdialenost_cesty(zoznam_miest)
     print("Povodna dlzka: ", povodna_dlzka)
-
+    # vytvori nultu generaciu, pociatocnu populaciu
     populacia = vytvor_populaciu(zoznam_miest, velkost_populacie)
+    print(populacia)
     eliteSize = int(0.1 * velkost_populacie)
     # velkost elity je 10% z velkosti populacie
 
@@ -184,7 +184,8 @@ if __name__ == '__main__':
         populacia_sorted = [x for _, x in (sorted(zipped_pairs))]
 
         populacia_sorted = list(reversed(populacia_sorted))
-
+        #priemerna fitnes
+        # print(sum(fitness_celkovo) / velkost_populacie)
         for i in range(0, eliteSize):
             fittest = populacia_sorted[i]
             nova_populacia.append(fittest)
@@ -206,18 +207,19 @@ if __name__ == '__main__':
         populacia = nova_populacia
 
     stop = time.time()
+
     print("Hladanie trvalo: ", (stop - start), "s")
-    konecna_dlzka = vzdialenost_cesty(fittest)
+
     fittest, dlzka, index = vyber_naj(populacia)
     fittest.append(fittest[0])
+    konecna_dlzka = vzdialenost_cesty(fittest)
     print(fittest)
-    # kreslenie grafu
+    # vykreslenie grafu
     for first, second in zip(fittest[:-1], fittest[1:]):
         ax2.plot([first[0], second[0]], [first[1], second[1]], 'b')
     ax2.plot([fittest[0][0], fittest[-1][0]], [fittest[0][1], fittest[-1][1]], 'b')
     for c in fittest:
         ax2.plot(c[0], c[1], 'ro')
-
 
     print("Konecna dlzka: ", konecna_dlzka)
     plt.show()

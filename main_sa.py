@@ -3,7 +3,7 @@ import math
 import numpy
 import random
 
-
+# Euklidovska vzdialenost
 def vzdialenost(mesto_1, mesto_2):
     d = math.sqrt((mesto_1[0] - mesto_2[0])**2 + (mesto_1[1]-mesto_2[1])**2)
     return d
@@ -27,10 +27,11 @@ def simulovane_zihanie(zoznam_miest):
 
     cena = vzdialenost_cesty(zoznam_miest)
     teplota = 20 # da sa menit podla potreby, ale je prisposobena na 20 az 40 miest podla zadania
-    factor = 0.9999 # alfa faktor - cooling factor
+    factor = 0.999 # alfa faktor - faktor ochladzovania
 
-    for i in range(8000): # da sa menit podla potreby, ale pocet iteracii je +/- prisposobeny 20 az 40 miest podla zadania
-        #print(i, cena)
+    for i in range(8000):
+        # print(cena)
+
         # pocet etap
         for j in range(10):
             # vymen dve nahodne suradnice
@@ -48,7 +49,7 @@ def simulovane_zihanie(zoznam_miest):
                     zoznam_miest[s1], zoznam_miest[s2] = zoznam_miest[s2], zoznam_miest[s1]
 
         teplota *= factor
-
+    print(teplota)
     return zoznam_miest
 
 
